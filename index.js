@@ -1,5 +1,18 @@
 const express = require('express');
 const app = express();
+const Campground = require('./models/campground');
+//for the database connection
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/yelp-camp')
+
+//inform us when there is an error and...
+mongoose.connection.on('error', console.error.bind(console, 'there is an error in connection:'));
+//...once the connection is esablished
+mongoose.connection.once('open', () => {
+    console.log("Database successfully connected!")
+}) 
+
+
 //using path to be able to start the server from any directory in terminal, without breaking anything
 const path = require('path');
 
@@ -16,5 +29,15 @@ app.set('views', path.join(__dirname, 'views'));
 
 //most basic test response on home('/') page
 app.get('/', (req,res) => {
-    res.send("Hello from server!");
+    res.render('home.ejs');
 });
+
+//another testing route, this time for database interaction
+app.get('/newcampground', async (req, res) => {
+    //create a new camp
+    const newCamp = new Campground({title: 'Campus Primus', description : 'awesome camping!'})
+    //save it to the database(and wait untill it's saved)
+    await newCamp.save();
+    //then send the object back to client
+    res.send(newCamp);
+})
