@@ -15,6 +15,7 @@ mongoose.connection.once('open', () => {
 
 //using path to be able to start the server from any directory in terminal, without breaking anything
 const path = require('path');
+const { find } = require('./models/campground');
 
 //register server to start listening on port 3000
 app.listen(3000, ()=> {
@@ -32,12 +33,13 @@ app.get('/', (req,res) => {
     res.render('home.ejs');
 });
 
-//another testing route, this time for database interaction
-app.get('/newcampground', async (req, res) => {
-    //create a new camp
-    const newCamp = new Campground({title: 'Campus Primus', description : 'awesome camping!'})
-    //save it to the database(and wait untill it's saved)
-    await newCamp.save();
-    //then send the object back to client
-    res.send(newCamp);
-})
+app.get('/campgrounds', async(req, res) => {
+    //get all the camps from db
+    const campgrounds = await Campground.find({});
+    res.render('campgrounds/index.ejs', {campgrounds})
+});
+
+app.get('/campgrounds/:id', async(req,res) =>{
+    const campground = await Campground.findById(req.params.id);
+    res.render('campgrounds/details.ejs', {campground})
+});
