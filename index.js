@@ -1,16 +1,19 @@
 const express = require('express');
 const app = express();
 const Campground = require('./models/campground');
+//using method-override to be able to send requests other than put and post from forms
+const methodOverride = require('method-override');
 //for the database connection
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/yelp-camp')
+mongoose.connect('mongodb://localhost:27017/yelp-camp');
+
 
 //inform us when there is an error and...
 mongoose.connection.on('error', console.error.bind(console, "there is an error in connection:"));
 //...once the connection is esablished
 mongoose.connection.once('open', () => {
     console.log("Database successfully connected!")
-}) 
+}); 
 
 
 //using path to be able to start the server from any directory in terminal, without breaking anything
@@ -31,6 +34,8 @@ app.set('views', path.join(__dirname, 'views'));
 
 //need to specify this here so that body of the request gets parsed
 app.use(express.urlencoded({extended : true}));
+//placing underscore just to avoid any possible name clashes
+app.use(methodOverride('_method'));
 
 //most basic test response on home('/') page
 app.get('/', (req,res) => {
@@ -46,7 +51,7 @@ app.get('/campgrounds', async(req, res) => {
 //must be before 'campgrounds/:id' route otherwise it will see 'new' as something that goes to ':id'
 app.get('/campgrounds/new', (req,res) => {
     res.render('campgrounds/new.ejs');
-})
+});
 
 app.post('/campgrounds', async(req, res) =>{
     /*req.body is by default empty, but it gets parsed thanks to 
@@ -54,12 +59,24 @@ app.post('/campgrounds', async(req, res) =>{
     const newCamp = new Campground(req.body.campground);
     await newCamp.save();
     res.redirect(`/campgrounds/${newCamp._id}`);
-})
+});
 
 //this will catch anything after /campgrounds/
 // no error handling yet
 app.get('/campgrounds/:id', async(req,res) =>{
     const campground = await Campground.findById(req.params.id);
-    res.render('campgrounds/details.ejs', {campground})
+    res.render('campgrounds/details.ejs', {campground});
+});
+
+app.get('/campgrounds/:id/edit', async(req, res) =>{
+    const campground = await Campground.findById(req.params.id);
+    res.render('campgrounds/edit.ejs', {campground});
+});
+
+app.put('/campgrounds/:id', async (req, res) =>{
+    const {id} = req.params;
+    //data is grouped under 'campground' so we can just use spread
+    const updatedCamp = await Campground.findByIdAndUpdate(id,{...req.body.campground}, {new : true});
+    res.redirect(`/campgrounds/${updatedCamp.id}`)
 });
 
