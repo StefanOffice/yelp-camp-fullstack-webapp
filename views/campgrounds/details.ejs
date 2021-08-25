@@ -1,14 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+<% layout('layouts/boilerplate.ejs') %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Details</title>
-</head>
-
-<body>
     <h1>Campground details</h1>
     <h2>
         <%= campground.title %>
@@ -19,13 +10,9 @@
     <div>
         <a href="/campgrounds/<%=campground._id%>/edit">Edit</a>
     </div>
-    
+
     <form action="/campgrounds/<%=campground._id%>?_method=DELETE" method="POST">
-    <button>Delete</button>
+        <button>Delete</button>
     </form>
-    
+
     <a href="/campgrounds">All campgrounds</a>
-
-</body>
-
-</html>

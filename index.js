@@ -3,6 +3,8 @@ const app = express();
 const Campground = require('./models/campground');
 //using method-override to be able to send requests other than put and post from forms
 const methodOverride = require('method-override');
+//for setting up and reusing layout boilerplate
+const ejsMate = require('ejs-mate');
 //for the database connection
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/yelp-camp');
@@ -36,6 +38,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 //placing underscore just to avoid any possible name clashes
 app.use(methodOverride('_method'));
+app.engine('ejs', ejsMate);
 
 //most basic test response on home('/') page
 app.get('/', (req, res) => {
