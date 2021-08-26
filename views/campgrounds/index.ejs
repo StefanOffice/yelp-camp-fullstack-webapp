@@ -1,16 +1,25 @@
 <% layout('layouts/boilerplate.ejs') %>
 
     <h1>All Campgrounds</h1>
-    <div>
-        <a href="/campgrounds/new">Add campground</a>
-    </div>
-    <ul>
-        <% for(let current of campgrounds){ %>
-            <li><a href="/campgrounds/<%= current._id %>">
-                    <%= current.title %>
-                </a></li>
-            <%}%>
-    </ul>
-    <div>
-        <a href="/">Back to home</a>
-    </div>
+
+    <% for(let current of campgrounds){ %>
+        <div class="card mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <img class="img-fluid" alt="" src="<%= current.image%>">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= current.title %></h5>
+                        <p class="card-text"><%= current.description %> </p>
+                        <p class="card-text"><small class="text-muted"><%= current.location %></small></p>
+                        <a href="/campgrounds/<%= current._id %> " class="btn btn-dark">Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%}%>
+
+            <div>
+                <a class = "btn btn-dark mb-3 mt-3" href="/">Back to home</a>
+            </div>
