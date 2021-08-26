@@ -10,9 +10,15 @@
                 </div>
                 <div class="col-md-8">
                     <div class="card-body">
-                        <h5 class="card-title"><%= current.title %></h5>
-                        <p class="card-text"><%= current.description %> </p>
-                        <p class="card-text"><small class="text-muted"><%= current.location %></small></p>
+                        <h5 class="card-title">
+                            <%= current.title %>
+                        </h5>
+                        <p class="card-text">
+                            <%= current.description %>
+                        </p>
+                        <p class="card-text"><small class="text-muted">
+                                <%= current.location %>
+                            </small></p>
                         <a href="/campgrounds/<%= current._id %> " class="btn btn-dark">Details</a>
                     </div>
                 </div>
@@ -21,5 +27,5 @@
         <%}%>
 
             <div>
-                <a class = "btn btn-dark mb-3 mt-3" href="/">Back to home</a>
+                <a class="btn btn-dark mb-3 mt-3" href="/">Back to home</a>
             </div>
