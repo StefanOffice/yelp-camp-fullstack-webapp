@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const Campground = require('./models/campground');
 const ExpressError = require('./utils/ExpressError');
+const {campgroundSchema} = require('./schemas.js');
 //using method-override to be able to send requests other than put and post from forms
 const methodOverride = require('method-override');
 //for setting up and reusing layout boilerplate
@@ -22,6 +23,7 @@ mongoose.connection.once('open', () => {
 //using path to be able to start the server from any directory in terminal, without breaking anything
 const path = require('path');
 const catchAsync = require('./utils/catchAsync');
+const { join } = require('path');
 
 //register server to start listening on port 3000
 app.listen(3000, () => {
@@ -40,6 +42,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.engine('ejs', ejsMate);
 
+const validateCampground = (req, res, next) => {
+    const { error } = campgroundSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(msg, 400);
+    } else {
+        next();
+    }
+}
+
 //most basic test response on home('/') page
 app.get('/', (req, res) => {
     res.render('home.ejs');
@@ -57,15 +69,12 @@ app.get('/campgrounds/new', (req, res) => {
 });
 
 //second part of the creating a new campground process, form from new.ejs will hit this route
-app.post('/campgrounds', catchAsync(async (req, res, next) => {
-        if(!req.body.campground){
-            throw new ExpressError('Invalid Campground Data', 400);
-        }
-        /*req.body is by default empty, but it gets parsed thanks to 
-        this line: app.use(express.urlencoded({extended : true})); located above */
-        const newCamp = new Campground(req.body.campground);
-        await newCamp.save();
-        res.redirect(`/campgrounds/${newCamp._id}`);
+app.post('/campgrounds', validateCampground, catchAsync(async (req, res, next) => {
+    /*req.body is by default empty, but it gets parsed thanks to 
+    this line: app.use(express.urlencoded({extended : true})); located above */
+    const newCamp = new Campground(req.body.campground);
+    await newCamp.save();
+    res.redirect(`/campgrounds/${newCamp._id}`);
 }));
 
 //this will catch anything after /campgrounds/
@@ -82,7 +91,7 @@ app.get('/campgrounds/:id/edit', catchAsync(async (req, res) => {
 }));
 
 //route that edit form sends data to
-app.put('/campgrounds/:id', catchAsync(async (req, res) => {
+app.put('/campgrounds/:id', validateCampground, catchAsync(async (req, res) => {
     const { id } = req.params;
     //data is grouped under 'campground' so we can just use spread
     const updatedCamp = await Campground.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
@@ -102,11 +111,11 @@ app.all('*', (req, res, next) => {
 })
 
 // final error handling 
-app.use((err,req,res,next) => {
-    const {statusCode = 500} = err;
-    if(!err.message){
+app.use((err, req, res, next) => {
+    const { statusCode = 500 } = err;
+    if (!err.message) {
         err.message = "Something went wrong!";
     }
     res.status(statusCode);
-    res.render('error.ejs',{err});
+    res.render('error.ejs', { err });
 });
