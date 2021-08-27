@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const Campground = require('./models/campground');
+const ExpressError = require('./utils/ExpressError');
 //using method-override to be able to send requests other than put and post from forms
 const methodOverride = require('method-override');
 //for setting up and reusing layout boilerplate
@@ -20,8 +21,7 @@ mongoose.connection.once('open', () => {
 
 //using path to be able to start the server from any directory in terminal, without breaking anything
 const path = require('path');
-const { find } = require('./models/campground');
-const { PRIORITY_ABOVE_NORMAL } = require('constants');
+const catchAsync = require('./utils/catchAsync');
 
 //register server to start listening on port 3000
 app.listen(3000, () => {
@@ -45,48 +45,65 @@ app.get('/', (req, res) => {
     res.render('home.ejs');
 });
 
-app.get('/campgrounds', async (req, res) => {
+app.get('/campgrounds', catchAsync(async (req, res) => {
     //get all the camps from db
     const campgrounds = await Campground.find({});
     res.render('campgrounds/index.ejs', { campgrounds })
-});
+}));
 
 //must be before 'campgrounds/:id' route otherwise it will see 'new' as something that goes to ':id'
 app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new.ejs');
 });
 
-app.post('/campgrounds', async (req, res) => {
-    /*req.body is by default empty, but it gets parsed thanks to 
-    this line: app.use(express.urlencoded({extended : true})); located above */
-    const newCamp = new Campground(req.body.campground);
-    await newCamp.save();
-    res.redirect(`/campgrounds/${newCamp._id}`);
-});
+//second part of the creating a new campground process, form from new.ejs will hit this route
+app.post('/campgrounds', catchAsync(async (req, res, next) => {
+        if(!req.body.campground){
+            throw new ExpressError('Invalid Campground Data', 400);
+        }
+        /*req.body is by default empty, but it gets parsed thanks to 
+        this line: app.use(express.urlencoded({extended : true})); located above */
+        const newCamp = new Campground(req.body.campground);
+        await newCamp.save();
+        res.redirect(`/campgrounds/${newCamp._id}`);
+}));
 
 //this will catch anything after /campgrounds/
 // no error handling yet
-app.get('/campgrounds/:id', async (req, res) => {
+app.get('/campgrounds/:id', catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     res.render('campgrounds/details.ejs', { campground });
-});
+}));
 
 //route for edit form
-app.get('/campgrounds/:id/edit', async (req, res) => {
+app.get('/campgrounds/:id/edit', catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     res.render('campgrounds/edit.ejs', { campground });
-});
+}));
 
 //route that edit form sends data to
-app.put('/campgrounds/:id', async (req, res) => {
+app.put('/campgrounds/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     //data is grouped under 'campground' so we can just use spread
     const updatedCamp = await Campground.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
     res.redirect(`/campgrounds/${updatedCamp.id}`)
-});
+}));
 
-app.delete('/campgrounds/:id', async (req, res) => {
+app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
+}));
+
+//a catch all route for any other non-defined route
+//passes the error to the handler below
+app.all('*', (req, res, next) => {
+    next(new ExpressError('Page Not Found', 404));
+})
+
+// final error handling 
+app.use((err,req,res,next) => {
+    const {statusCode = 500, message = 'Something went wrong!'} = err;
+    res.status(statusCode);
+    res.send(message);
 });
