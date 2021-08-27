@@ -103,7 +103,10 @@ app.all('*', (req, res, next) => {
 
 // final error handling 
 app.use((err,req,res,next) => {
-    const {statusCode = 500, message = 'Something went wrong!'} = err;
+    const {statusCode = 500} = err;
+    if(!err.message){
+        err.message = "Something went wrong!";
+    }
     res.status(statusCode);
-    res.send(message);
+    res.render('error.ejs',{err});
 });
