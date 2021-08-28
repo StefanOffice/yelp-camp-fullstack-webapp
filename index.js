@@ -3,7 +3,7 @@ const app = express();
 const Campground = require('./models/campground');
 const Review = require('./models/review');
 const ExpressError = require('./utils/ExpressError');
-const {campgroundSchema} = require('./schemas.js');
+const {campgroundSchema, reviewSchema} = require('./schemas.js');
 //using method-override to be able to send requests other than put and post from forms
 const methodOverride = require('method-override');
 //for setting up and reusing layout boilerplate
@@ -46,6 +46,16 @@ app.engine('ejs', ejsMate);
 const validateCampground = (req, res, next) => {
     const { error } = campgroundSchema.validate(req.body);
     if (error) {
+        const msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(msg, 400);
+    } else {
+        next();
+    }
+}
+
+const validateReview = (req, res, next) => {
+    const {error} = reviewSchema.validate(req.body);
+    if(error){
         const msg = error.details.map(el => el.message).join(',');
         throw new ExpressError(msg, 400);
     } else {
@@ -106,7 +116,7 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
 }));
 
 //a route for posting reviews
-app.post('/campgrounds/:id/reviews', catchAsync(async(req,res)=>{
+app.post('/campgrounds/:id/reviews', validateReview, catchAsync(async(req,res)=>{
     const campground = await Campground.findById(req.params.id);
     const review = new Review(req.body.review);
     campground.reviews.push(review);
