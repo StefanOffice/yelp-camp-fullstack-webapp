@@ -22,6 +22,18 @@
                 added <%= Math.floor(Math.random() * 350) + 2 %> days ago 
             </div>
         </div>
+        <h3>Leave a review</h3>
+        <form action="/campgrounds/<%= campground._id %>/reviews" method = "POST" class="mb-3">
+            <div class="mb-3">
+                <label for="rating" class="form-label">Rating</label>
+                <input type="range" name="review[rating]" min = "1" max ="5" step="1" id="rating" class="form-range">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="revbody">Review</label>
+                <textarea class="form-control" name="review[body]" id="revbody" cols="30" rows="3"></textarea>
+            </div>
+            <button class="btn btn-success">Submit</button>
+        </form>
         <a href="/campgrounds">All campgrounds</a>
     </div>
 </div>

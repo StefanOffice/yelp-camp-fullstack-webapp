@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const Campground = require('./models/campground');
+const Review = require('./models/review');
 const ExpressError = require('./utils/ExpressError');
 const {campgroundSchema} = require('./schemas.js');
 //using method-override to be able to send requests other than put and post from forms
@@ -103,6 +104,16 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
 }));
+
+//a route for posting reviews
+app.post('/campgrounds/:id/reviews', catchAsync(async(req,res)=>{
+    const campground = await Campground.findById(req.params.id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
+}))
 
 //a catch all route for any other non-defined route
 //passes the error to the handler below
