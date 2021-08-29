@@ -125,6 +125,13 @@ app.post('/campgrounds/:id/reviews', validateReview, catchAsync(async(req,res)=>
     res.redirect(`/campgrounds/${campground._id}`);
 }))
 
+app.delete('/campgrounds/:campId/reviews/:revId', catchAsync(async(req,res) =>{
+    const {campId, revId} = req.params;
+    await Campground.findByIdAndUpdate(campId, {$pull: {reviews : revId}});
+    await Review.findByIdAndDelete(revId);
+    res.redirect(`/campgrounds/${campId}`);
+}))
+
 //a catch all route for any other non-defined route
 //passes the error to the handler below
 app.all('*', (req, res, next) => {
