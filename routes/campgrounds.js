@@ -35,7 +35,7 @@ router.get('/new', (req, res) => {
 router.post('/', validateCampground, catchAsync(async (req, res, next) => {
     const newCamp = new Campground(req.body.campground);
     await newCamp.save();
-    req.flash('success', 'Successfully made a new campground!')
+    req.flash('success', 'Successfully made a new campground!');
     res.redirect(`/campgrounds/${newCamp._id}`);
 }));
 
@@ -56,6 +56,7 @@ router.put('/:id', validateCampground, catchAsync(async (req, res) => {
     const { id } = req.params;
     //data is grouped under 'campground' so we can just use spread
     const updatedCamp = await Campground.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
+    req.flash('success', 'Successfully updated the campground!')
     res.redirect(`/campgrounds/${updatedCamp._id}`)
 }));
 
@@ -64,6 +65,7 @@ router.put('/:id', validateCampground, catchAsync(async (req, res) => {
 router.delete('/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
+    req.flash('success', 'Campground deleted!');
     res.redirect('/campgrounds');
 }));
 
