@@ -36,6 +36,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 //placing underscore just to avoid any possible name clashes
 app.use(methodOverride('_method'));
+//serve the assets from the public directory so that they can be accesed from other files
+app.use(express.static(path.join(__dirname, 'public')));
 app.engine('ejs', ejsMate);
 
 
@@ -53,7 +55,6 @@ app.get('/', (req, res) => {
 //a catch all route for any other non-defined route
 //passes the error to the handler below
 app.all('*', (req, res, next) => {
-    console.log('ERROR CATCHER HIT');
     next(new ExpressError('Page Not Found', 404));
 })
 
