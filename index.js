@@ -4,11 +4,13 @@ const ExpressError = require('./utils/ExpressError');
 const methodOverride = require('method-override');
 //for setting up and reusing layout boilerplate
 const ejsMate = require('ejs-mate');
+//using path to be able to start the server from any directory in terminal, without breaking anything
+const path = require('path');
+const flash = require('connect-flash');
+
 //for the database connection
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/yelp-camp');
-
-
 //inform us when there is an error and...
 mongoose.connection.on('error', console.error.bind(console, "there is an error in connection:"));
 //...once the connection is esablished
@@ -16,8 +18,19 @@ mongoose.connection.once('open', () => {
     console.log("Database successfully connected!")
 });
 
-//using path to be able to start the server from any directory in terminal, without breaking anything
-const path = require('path');
+//settings for the session
+const session = require('express-session');
+const sessionConfig = {
+    secret: 'notaverygoodsecret!',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7, //a week in milliseconds
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+        httpOnly: true // a bit of extra security
+    }
+}
+
 
 //require the routes that are now separately listed
 const campgroundRoutes = require('./routes/campgrounds');
@@ -28,18 +41,24 @@ const app = express();
 
 //to enable usage on embedded javascript in html files
 app.set('view engine', 'ejs');
-
 //if this line is removed 'node intex.js' command in the terminal can only be run if we are currently in the project directory
 app.set('views', path.join(__dirname, 'views'));
-
 //need to specify this here so that body of the request gets parsed
 app.use(express.urlencoded({ extended: true }));
 //placing underscore just to avoid any possible name clashes
 app.use(methodOverride('_method'));
 //serve the assets from the public directory so that they can be accesed from other files
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session(sessionConfig));
+app.use(flash());
 app.engine('ejs', ejsMate);
 
+
+app.use((req,res,next) =>{
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+})
 
 //use the rotes that i moved to campgrounds.js
 //add prefix /campgrounds to any route defined there
