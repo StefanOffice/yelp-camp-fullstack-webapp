@@ -7,6 +7,11 @@ const ejsMate = require('ejs-mate');
 //using path to be able to start the server from any directory in terminal, without breaking anything
 const path = require('path');
 const flash = require('connect-flash');
+//authentication things
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./models/user');
+
 
 //for the database connection
 const mongoose = require('mongoose');
@@ -35,6 +40,7 @@ const sessionConfig = {
 //require the routes that are now separately listed
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
+const { getMaxListeners } = require('process');
 
 const app = express();
 
@@ -51,13 +57,32 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session(sessionConfig));
 app.use(flash());
+//passport config
+app.use(passport.initialize());
+//for persistent login sessions, must come after app.use(session());
+app.use(passport.session());
+
+//the methods called below on User come from passport-local-mongoose
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 app.engine('ejs', ejsMate);
 
 
-app.use((req,res,next) =>{
+app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
+})
+
+app.get('/fakeUser', async (req, res) => {
+    const newUser = new User({
+        email: 'blabla@blablabla.com',
+        username: 'firstUser'
+    })
+    const registeredUser = await User.register(newUser, 'awesomepassword');
+    res.send(registeredUser);
 })
 
 //use the rotes that i moved to campgrounds.js
