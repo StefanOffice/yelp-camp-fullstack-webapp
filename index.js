@@ -40,7 +40,7 @@ const sessionConfig = {
 //require the routes that are now separately listed
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
-const { getMaxListeners } = require('process');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -89,6 +89,7 @@ app.get('/fakeUser', async (req, res) => {
 //add prefix /campgrounds to any route defined there
 app.use('/campgrounds', campgroundRoutes);
 app.use('/campgrounds/:id/reviews', reviewRoutes);
+app.use('/', authRoutes);
 
 //home page route
 app.get('/', (req, res) => {
