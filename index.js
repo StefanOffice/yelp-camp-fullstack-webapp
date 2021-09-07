@@ -69,8 +69,10 @@ passport.deserializeUser(User.deserializeUser());
 
 app.engine('ejs', ejsMate);
 
-
+//pass this data to all the templates
 app.use((req, res, next) => {
+    //req.user is created and populated by passport
+    res.locals.currentUser = req.user;
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();

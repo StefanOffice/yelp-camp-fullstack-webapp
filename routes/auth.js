@@ -13,8 +13,15 @@ router.post('/register', async (req, res) => {
         const { email, username, password } = req.body;
         const newUser = new User({ email, username });
         const regUser = await User.register(newUser, password);
-        req.flash('success', `Hello ${username}, you've been registered successfully!`);
-        res.redirect('/campgrounds');
+        req.login(regUser, err =>{
+            if(err) {
+                return next(err);
+            } else {
+                req.flash('success', `Hello ${username}, you've been registered successfully!`);
+                res.redirect('/campgrounds');
+            }
+        })
+        
     } catch (e) {
         req.flash('error', e.message);
         res.redirect('register');
