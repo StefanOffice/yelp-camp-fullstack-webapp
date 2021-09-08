@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const catchAsync = require('../utils/catchAsync');
-const {isLoggedIn, isAuthor, validateCampground} = require('../middleware')
+const { isLoggedIn, isAuthor, validateCampground } = require('../middleware')
 
 const Campground = require('../models/campground');
 
@@ -15,7 +15,7 @@ router.get('/', catchAsync(async (req, res) => {
 
 //must be before 'campgrounds/:id' route otherwise it will see 'new' as something that goes to ':id'
 router.get('/new', isLoggedIn, (req, res) => {
-        res.render('campgrounds/new.ejs');
+    res.render('campgrounds/new.ejs');
 });
 
 //second part of the creating a new campground process, form from new.ejs will hit this route
@@ -29,8 +29,13 @@ router.post('/', isLoggedIn, validateCampground, catchAsync(async (req, res, nex
 
 //for displaying details of a chosen campground
 router.get('/:id', catchAsync(async (req, res) => {
-    const campground = await Campground.findById(req.params.id).populate('reviews').populate('author');
-    if(!campground){
+    const campground = await Campground.findById(req.params.id).populate({ //this is saying 'populate all the reviews of the campground
+        path: 'reviews',
+        populate: { // then populate authors for each review
+            path: 'author'
+        }
+    }).populate('author'); // then populate the author of the campground
+    if (!campground) {
         req.flash('error', 'That campground does not exist');
         res.redirect('/campgrounds');
     }
@@ -40,7 +45,7 @@ router.get('/:id', catchAsync(async (req, res) => {
 //route for edit form
 router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
-    if(!campground){
+    if (!campground) {
         req.flash('error', 'That campground does not exist');
         res.redirect('/campgrounds');
     }

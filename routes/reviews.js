@@ -3,28 +3,17 @@ const express = require('express');
 // merge params to get the params from the prefix aswell
 const router = express.Router({mergeParams:true});
 const catchAsync = require('../utils/catchAsync');
-const ExpressError = require('../utils/ExpressError');
-
-const {reviewSchema} = require('../schemas.js');
+const {validateReview, isLoggedIn} = require('../middleware');
 const Campground = require('../models/campground');
 const Review = require('../models/review');
 
 
-const validateReview = (req, res, next) => {
-    const {error} = reviewSchema.validate(req.body);
-    if(error){
-        const msg = error.details.map(el => el.message).join(',');
-        throw new ExpressError(msg, 400);
-    } else {
-        next();
-    }
-}
-
 //a route for posting reviews
-router.post('/', validateReview, catchAsync(async(req,res)=>{
+router.post('/', isLoggedIn, validateReview, catchAsync(async(req,res)=>{
     //find the campground
     const campground = await Campground.findById(req.params.id);
     const review = new Review(req.body.review);
+    review.author = req.user._id;
     //add the review to the campground
     campground.reviews.push(review);
     //save both to database

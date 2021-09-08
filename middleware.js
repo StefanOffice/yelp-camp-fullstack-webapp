@@ -1,10 +1,20 @@
 const Campground = require('./models/campground');
-const {campgroundSchema} = require('./schemas.js');
+const {campgroundSchema, reviewSchema} = require('./schemas.js');
 const ExpressError = require('./utils/ExpressError');
 
 const validateCampground = (req, res, next) => {
     const { error } = campgroundSchema.validate(req.body);
     if (error) {
+        const msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(msg, 400);
+    } else {
+        next();
+    }
+}
+
+const validateReview = (req, res, next) => {
+    const {error} = reviewSchema.validate(req.body);
+    if(error){
         const msg = error.details.map(el => el.message).join(',');
         throw new ExpressError(msg, 400);
     } else {
@@ -36,3 +46,4 @@ const isAuthor = async(req, res, next) => {
 module.exports.isLoggedIn = isLoggedIn;
 module.exports.isAuthor = isAuthor;
 module.exports.validateCampground = validateCampground;
+module.exports.validateReview = validateReview;
