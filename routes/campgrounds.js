@@ -23,7 +23,7 @@ router.get('/:id', catchAsync(campController.showCampDetails));
 //route for edit form
 router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(campController.showEditForm));
 //route that edit form sends data to
-router.put('/:id', isLoggedIn, isAuthor, validateCampground, catchAsync(campController.saveUpdatedInfo));
+router.put('/:id', isLoggedIn, isAuthor, upload.array('image'),validateCampground, catchAsync(campController.saveUpdatedInfo));
 
 //route for deleting a campground
 router.delete('/:id', isLoggedIn, isAuthor, catchAsync(campController.deleteCamp));

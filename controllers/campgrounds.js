@@ -49,6 +49,12 @@ const saveUpdatedInfo = async (req, res) => {
     const { id } = req.params;
     //data is grouped under 'campground' in the body so we can just use spread
     const updatedCamp = await Campground.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
+    const newImages = req.files.map(f => ({
+        url: f.path,
+        filename: f.filename
+    }));
+    updatedCamp.images.push(...newImages);
+    updatedCamp.save();
     req.flash('success', 'Successfully updated the campground!')
     res.redirect(`/campgrounds/${updatedCamp._id}`)
 }
