@@ -10,7 +10,6 @@ router.get('/', catchAsync(campController.index));
 
 //must be before 'campgrounds/:id' route otherwise it will see 'new' as something that goes to ':id'
 router.get('/new', isLoggedIn, campController.showNewForm);
-
 //second part of the creating a new campground process, form from new.ejs will hit this route
 router.post('/', isLoggedIn, validateCampground, catchAsync(campController.createCampground));
 
@@ -19,10 +18,8 @@ router.get('/:id', catchAsync(campController.showCampDetails));
 
 //route for edit form
 router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(campController.showEditForm));
-
 //route that edit form sends data to
 router.put('/:id', isLoggedIn, isAuthor, validateCampground, catchAsync(campController.saveUpdatedInfo));
-
 
 //route for deleting a campground
 router.delete('/:id', isLoggedIn, isAuthor, catchAsync(campController.deleteCamp));

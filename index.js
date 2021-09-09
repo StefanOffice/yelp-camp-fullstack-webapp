@@ -78,15 +78,6 @@ app.use((req, res, next) => {
     next();
 })
 
-app.get('/fakeUser', async (req, res) => {
-    const newUser = new User({
-        email: 'blabla@blablabla.com',
-        username: 'firstUser'
-    })
-    const registeredUser = await User.register(newUser, 'awesomepassword');
-    res.send(registeredUser);
-})
-
 //use the rotes that i moved to campgrounds.js
 //add prefix /campgrounds to any route defined there
 app.use('/campgrounds', campgroundRoutes);

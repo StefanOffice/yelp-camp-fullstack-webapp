@@ -1,3 +1,5 @@
+const User = require('../models/user');
+
 const showRegisterForm = (req, res) => {
     res.render('auth/register');
 }
