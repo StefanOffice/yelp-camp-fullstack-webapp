@@ -15,11 +15,7 @@ router.get('/', catchAsync(campController.index));
 //must be before 'campgrounds/:id' route otherwise it will see 'new' as something that goes to ':id'
 router.get('/new', isLoggedIn, campController.showNewForm);
 //second part of the creating a new campground process, form from new.ejs will hit this route
-// router.post('/', isLoggedIn, validateCampground, catchAsync(campController.createCampground));
-router.post('/', upload.single('image'), (req, res) =>{
-    console.log(req.body, req.file);
-    res.send('It worked?');
-})
+router.post('/', isLoggedIn, upload.array('image'), validateCampground, catchAsync(campController.createCampground));
 
 //for displaying details of a chosen campground
 router.get('/:id', catchAsync(campController.showCampDetails));
