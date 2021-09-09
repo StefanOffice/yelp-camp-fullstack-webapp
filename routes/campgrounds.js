@@ -4,6 +4,10 @@ const catchAsync = require('../utils/catchAsync');
 const { isLoggedIn, isAuthor, validateCampground } = require('../middleware')
 const campController = require('../controllers/campgrounds')
 
+const multer = require('multer');
+const {storage} = require('../cloudinary');
+const upload = multer({storage});
+
 
 //route for getting a list of all campgrounds
 router.get('/', catchAsync(campController.index));
@@ -11,7 +15,11 @@ router.get('/', catchAsync(campController.index));
 //must be before 'campgrounds/:id' route otherwise it will see 'new' as something that goes to ':id'
 router.get('/new', isLoggedIn, campController.showNewForm);
 //second part of the creating a new campground process, form from new.ejs will hit this route
-router.post('/', isLoggedIn, validateCampground, catchAsync(campController.createCampground));
+// router.post('/', isLoggedIn, validateCampground, catchAsync(campController.createCampground));
+router.post('/', upload.single('image'), (req, res) =>{
+    console.log(req.body, req.file);
+    res.send('It worked?');
+})
 
 //for displaying details of a chosen campground
 router.get('/:id', catchAsync(campController.showCampDetails));
