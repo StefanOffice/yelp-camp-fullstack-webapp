@@ -1,4 +1,5 @@
 const Campground = require('../models/campground');
+const {cloudinary} = require("../cloudinary");
 
 const index = async (req, res) => {
     //get all the camps from db
@@ -49,12 +50,34 @@ const saveUpdatedInfo = async (req, res) => {
     const { id } = req.params;
     //data is grouped under 'campground' in the body so we can just use spread
     const updatedCamp = await Campground.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
+
+    //read the new images and add them to array
     const newImages = req.files.map(f => ({
         url: f.path,
         filename: f.filename
     }));
     updatedCamp.images.push(...newImages);
-    updatedCamp.save();
+
+    
+    if (req.body.deleteImages) {
+        //delete images on cloudinary
+        for(let filename of req.body.deleteImages){
+            await cloudinary.uploader.destroy(filename);
+        }
+
+        //deletes image urls from mongo
+        await updatedCamp.updateOne({
+            $pull: {
+                images: { //pull out of the images array
+                    filename: { //where the filename on each image
+                        $in: req.body.deleteImages //is in the deleteImages array
+                    }
+                }
+            }
+        })
+    }
+
+    await updatedCamp.save();
     req.flash('success', 'Successfully updated the campground!')
     res.redirect(`/campgrounds/${updatedCamp._id}`)
 }
