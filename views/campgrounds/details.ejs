@@ -2,63 +2,71 @@
     <link rel="stylesheet" href="/css/stars.css">
 
     <div class="row">
+        <!-- left side -->
         <div class="col-6 mb-3">
 
+            <div id='map' style='width: 400px; height: 300px;'></div>
+
+            <!-- image carousel -->
             <div id="campCarousel" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
-                <% campground.images.forEach((img,i) => { %>
-                  <div class="carousel-item <%= i === 0 ? 'active': '' %>">
-                    <img src="<%= img.url %>" class="d-block w-100" alt="...">
-                  </div>
-                  <% }) %> 
+                    <% campground.images.forEach((img,i)=> { %>
+                        <div class="carousel-item <%= i === 0 ? 'active': '' %>">
+                            <img src="<%= img.url %>" class="d-block w-100" alt="...">
+                        </div>
+                        <% }) %>
                 </div>
-                <% if(campground.images.length > 1){ %> 
-                <button class="carousel-control-prev" type="button" data-bs-target="#campCarousel" data-bs-slide="prev">
-                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                  <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#campCarousel" data-bs-slide="next">
-                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                  <span class="visually-hidden">Next</span>
-                </button>
-                <% } %> 
-              </div>
-              
+                <% if(campground.images.length> 1){ %>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#campCarousel"
+                        data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#campCarousel"
+                        data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    <% } %>
+            </div>
+
+            <!-- general info card -->
             <div class="card mb-3 mt-3">
                 <% if(campground.image) {%>
                     <img src="<%= campground.image %>" class="card-img-top" alt="...">
                     <% } %>
-                                <div class="card-body">
-                                    <h5 class="card-title">
-                                        <%= campground.title%>
-                                    </h5>
-                                    <p class="card-text">
-                                        <%= campground.description%>
-                                    </p>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <%= campground.title%>
+                            </h5>
+                            <p class="card-text">
+                                <%= campground.description%>
+                            </p>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item text-muted">
+                                <%= campground.location%>
+                            </li>
+                            <li class="list-group-item">$<%= campground.price%>/night</li>
+                        </ul>
+                        <% if(currentUser && campground.author.equals(currentUser._id)){ %>
+                            <div class="card-body">
+                                <a class="card-link btn btn-info" href="/campgrounds/<%=campground._id%>/edit">Edit</a>
+                                <form class="d-inline" action="/campgrounds/<%=campground._id%>?_method=DELETE"
+                                    method="POST">
+                                    <button class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                            <% } %>
+                                <div class="card-footer text-muted">
+                                    submitted by <%= campground.author.username %>, <%= Math.floor(Math.random() * 350)
+                                            + 2 %> days ago
                                 </div>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item text-muted">
-                                        <%= campground.location%>
-                                    </li>
-                                    <li class="list-group-item">$<%= campground.price%>/night</li>
-                                </ul>
-                                <% if(currentUser && campground.author.equals(currentUser._id)){ %>
-                                    <div class="card-body">
-                                        <a class="card-link btn btn-info"
-                                            href="/campgrounds/<%=campground._id%>/edit">Edit</a>
-                                        <form class="d-inline" action="/campgrounds/<%=campground._id%>?_method=DELETE"
-                                            method="POST">
-                                            <button class="btn btn-danger">Delete</button>
-                                        </form>
-                                    </div>
-                                    <% } %>
-                                        <div class="card-footer text-muted">
-                                            submitted by <%= campground.author.username %>, <%= Math.floor(Math.random()
-                                                    * 350) + 2 %> days ago
-                                        </div>
             </div>
             <a href="/campgrounds">All campgrounds</a>
         </div>
+
+        <!-- right side  -->
         <div class="col-6">
             <% if(currentUser){ %>
                 <h3>Leave a review</h3>
@@ -122,3 +130,9 @@
                                 <% } %>
         </div>
     </div>
+
+
+    <script>
+        const mapToken = '<%-process.env.mapbox_token %>';
+    </script>
+    <script src="/js/detailsMap.js"></script>
