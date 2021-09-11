@@ -5,8 +5,6 @@
         <!-- left side -->
         <div class="col-6 mb-3">
 
-            <div id='map' style='width: 400px; height: 300px;'></div>
-
             <!-- image carousel -->
             <div id="campCarousel" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
@@ -16,7 +14,8 @@
                         </div>
                         <% }) %>
                 </div>
-                <% if(campground.images.length> 1){ %>
+
+                <% if(campground.images.length > 0){ %>
                     <button class="carousel-control-prev" type="button" data-bs-target="#campCarousel"
                         data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -32,7 +31,7 @@
 
             <!-- general info card -->
             <div class="card mb-3 mt-3">
-                <% if(campground.image) {%>
+                <% if(campground.images.length <= 0) {%>
                     <img src="<%= campground.image %>" class="card-img-top" alt="...">
                     <% } %>
                         <div class="card-body">
@@ -68,6 +67,10 @@
 
         <!-- right side  -->
         <div class="col-6">
+
+            <h3>Location:</h3>
+                    <div id='map' style='width: 400px; height: 300px;'></div>
+
             <% if(currentUser){ %>
                 <h3>Leave a review</h3>
                 <form action="/campgrounds/<%= campground._id %>/reviews" method="POST" class="validated-form mb-3"
@@ -98,6 +101,8 @@
                     <button class="btn btn-success">Submit</button>
                 </form>
                 <% } %>
+
+                    
 
                     <h3>Reviews</h3>
                     <% if(campground.reviews.length < 1){ %>

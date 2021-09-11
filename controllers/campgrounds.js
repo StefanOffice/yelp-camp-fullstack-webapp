@@ -29,7 +29,6 @@ const createCampground = async (req, res, next) => {
     }));
     newCamp.author = req.user._id;
     await newCamp.save();
-    console.log(newCamp);
     req.flash('success', 'Successfully made a new campground!');
     res.redirect(`/campgrounds/${newCamp._id}`);
 }
@@ -45,7 +44,6 @@ const showCampDetails = async (req, res) => {
         req.flash('error', 'That campground does not exist');
         res.redirect('/campgrounds');
     }
-    console.log(campground);
     res.render('campgrounds/details.ejs', { campground });
 }
 
@@ -62,6 +60,12 @@ const saveUpdatedInfo = async (req, res) => {
     const { id } = req.params;
     //data is grouped under 'campground' in the body so we can just use spread
     const updatedCamp = await Campground.findByIdAndUpdate(id, { ...req.body.campground }, { new: true });
+
+    const geoData = await geocoder.forwardGeocode({
+        query: req.body.campground.location,
+        limit: 1
+    }).send();
+    updatedCamp.geometry = geoData.body.features[0].geometry;
 
     //read the new images and add them to array
     const newImages = req.files.map(f => ({
