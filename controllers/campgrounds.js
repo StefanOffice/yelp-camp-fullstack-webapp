@@ -45,6 +45,7 @@ const showCampDetails = async (req, res) => {
         req.flash('error', 'That campground does not exist');
         res.redirect('/campgrounds');
     }
+    console.log(campground);
     res.render('campgrounds/details.ejs', { campground });
 }
 
