@@ -25,19 +25,30 @@ const seedDB = async () => {
 
     //once database in empty, populate it with random data
     //to be replaced with real data
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 200; i++) {
         const random1000 = Math.floor(Math.random() * 1000);
         const price = Math.floor(Math.random() * 30) + 10;
         const newCamp = new Campground({
             //change to your user id
             author: '61378b089e0c799ef85b3623',
             location: `${cities[random1000].city}, ${cities[random1000].state}`,
+
+            geometry: {
+                type: "Point",
+                coordinates: [
+                    cities[random1000].longitude,
+                    cities[random1000].latitude
+                ]
+            },
+
             title: `${getRandomElement(namePrefix)} ${getRandomElement(nameSuffix)}`,
+
             image: 'https://source.unsplash.com/collection/483251',
             description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Error illo voluptatum quos, qui temporibus belle eveniets?",
+
             price
         })
-        
+
         await newCamp.save();
     }
 }
