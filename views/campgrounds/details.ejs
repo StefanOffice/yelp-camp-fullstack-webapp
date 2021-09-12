@@ -68,16 +68,16 @@
         <!-- right side  -->
         <div class="col-6">
 
-            <h3>Location:</h3>
+            <h3 class = "section-title">Location:</h3>
                     <div id='map' style='width: 400px; height: 300px;'></div>
 
             <% if(currentUser){ %>
-                <h3>Leave a review</h3>
+                <h3 class = "section-title">Leave a review</h3>
                 <form action="/campgrounds/<%= campground._id %>/reviews" method="POST" class="validated-form mb-3"
                     novalidate>
                     <div class="mb-3">
                         <fieldset class="starability-heart">
-                            <legend>Rating</legend>
+                            <legend class = "section-title">Rating</legend>
                             <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0"
                                 checked aria-label="No rating." />
                             <input type="radio" id="first-rate1" name="review[rating]" value="1" />
@@ -93,7 +93,7 @@
                         </fieldset>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="revbody">Review</label>
+                        <label class="section-title form-label" for="revbody">Review</label>
                         <textarea class="form-control" name="review[body]" id="revbody" cols="30" rows="3"
                             required></textarea>
                         <div class="valid-feedback">Looks good!</div>
@@ -104,9 +104,9 @@
 
                     
 
-                    <h3>Reviews</h3>
+                    <h3 class = "section-title">Reviews</h3>
                     <% if(campground.reviews.length < 1){ %>
-                        <div><i>
+                        <div><i class = "section-title">
                                 No reviews for this campsite yet, be the first to share your experience!
                             </i></div>
                         <% } %>
