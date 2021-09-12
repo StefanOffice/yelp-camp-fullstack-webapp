@@ -6,7 +6,7 @@
         <div class="col-6 mb-3">
 
             <!-- image carousel -->
-            <div id="campCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div id="campCarousel" class="carousel slide <%= campground.images.length > 0 ? 'mb-3' : '' %> " data-bs-ride="carousel">
                 <div class="carousel-inner">
                     <% campground.images.forEach((img,i)=> { %>
                         <div class="carousel-item <%= i === 0 ? 'active': '' %>">
@@ -30,7 +30,7 @@
             </div>
 
             <!-- general info card -->
-            <div class="card mb-3 mt-3">
+            <div class="card mb-3">
                 <% if(campground.images.length <= 0) {%>
                     <img src="<%= campground.image %>" class="card-img-top" alt="...">
                     <% } %>
@@ -69,7 +69,7 @@
         <div class="col-6">
 
         
-            <div id='map' style='width: 100%; height: 300px;'></div>
+            <div id='map' ></div>
 
             <% if(currentUser){ %>
                 <h3 class = "section-title">Leave a review</h3>
