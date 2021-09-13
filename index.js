@@ -16,7 +16,9 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const User = require('./models/user');
+
 const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
 
 //for the database connection
 const mongoose = require('mongoose');
@@ -31,13 +33,15 @@ mongoose.connection.once('open', () => {
 //settings for the session
 const session = require('express-session');
 const sessionConfig = {
+    name: 'notacookie',
     secret: 'notaverygoodsecret!',
     resave: false,
     saveUninitialized: true,
     cookie: {
         expires: Date.now() + 1000 * 60 * 60 * 24 * 7, //a week in milliseconds
         maxAge: 1000 * 60 * 60 * 24 * 7,
-        httpOnly: true // a bit of extra security
+        httpOnly: true, // a bit of extra security
+        // secure: true //localhost is not https, uncomment this when deploying tho
     }
 }
 
@@ -60,7 +64,58 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 //serve the assets from the public directory so that they can be accesed from other files
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(mongoSanitize());
+
+//security definitions, where can content be pulled from
+app.use(helmet());
+
+const scriptSrcUrls = [
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://api.mapbox.com/",
+    "https://kit.fontawesome.com/",
+    "https://cdnjs.cloudflare.com/",
+    "https://cdn.jsdelivr.net"
+];
+const styleSrcUrls = [
+    "https://kit-free.fontawesome.com/",
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.mapbox.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://fonts.googleapis.com/",
+    "https://use.fontawesome.com/",
+    "https://cdn.jsdelivr.net"
+];
+const connectSrcUrls = [
+    "https://api.mapbox.com/",
+    "https://a.tiles.mapbox.com/",
+    "https://b.tiles.mapbox.com/",
+    "https://events.mapbox.com/"
+];
+const fontSrcUrls = [];
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: [],
+            connectSrc: ["'self'", ...connectSrcUrls],
+            scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+            styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+            workerSrc: ["'self'", "blob:"],
+            objectSrc: [],
+            imgSrc: [
+                "'self'",
+                "blob:",
+                "data:",
+                "https://res.cloudinary.com/brodzef/", 
+                "https://images.unsplash.com/",
+                "https://source.unsplash.com/"
+            ],
+            fontSrc: ["'self'", ...fontSrcUrls],
+        },
+    })
+);
+
 app.use(session(sessionConfig));
 app.use(flash());
 //passport config
