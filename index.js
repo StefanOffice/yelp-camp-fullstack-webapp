@@ -16,7 +16,7 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const User = require('./models/user');
-
+const mongoSanitize = require('express-mongo-sanitize');
 
 //for the database connection
 const mongoose = require('mongoose');
@@ -60,6 +60,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 //serve the assets from the public directory so that they can be accesed from other files
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(mongoSanitize());
 app.use(session(sessionConfig));
 app.use(flash());
 //passport config
