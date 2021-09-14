@@ -1,16 +1,23 @@
+if(process.env.NODE_ENV !== "production"){
+    require('dotenv').config();
+}
+
 const Campground = require('../models/campground');
 //used for generating random imaginary campground data
 const cities = require('./cities');
 const { namePrefix, nameSuffix } = require('./nameHelpers');
 //for the database connection
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/yelp-camp');
+const dbUrl = process.env.db_url || 'mongodb://localhost:27017/yelp-camp';
+
+mongoose.connect(dbUrl);
 
 //inform us when there is an error and...
 mongoose.connection.on('error', console.error.bind(console, 'there is an error in connection:'));
 //...once the connection is esablished
 mongoose.connection.once('open', () => {
     console.log("Database successfully connected!")
+    console.log(dbUrl);
 });
 
 const getRandomElement = (array) => {
@@ -30,7 +37,7 @@ const seedDB = async () => {
         const price = Math.floor(Math.random() * 30) + 10;
         const newCamp = new Campground({
             //change to your user id
-            author: '61378b089e0c799ef85b3623',
+            author: '61420c29eb5c86bbb25daf8f',
             location: `${cities[random1000].city}, ${cities[random1000].state}`,
 
             geometry: {
@@ -44,8 +51,8 @@ const seedDB = async () => {
             title: `${getRandomElement(namePrefix)} ${getRandomElement(nameSuffix)}`,
 
             image: 'https://source.unsplash.com/collection/483251',
-            description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Error illo voluptatum quos, qui temporibus belle eveniets?",
-
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc id arcu ut turpis maximus malesuada nec non ante. Maecenas posuere sed neque vel porta. Vivamus blandit gravida elementum. Mauris sit amet dolor ac tortor imperdiet luctus. Maecenas sagittis vitae ligula ut finibus. Integer ut orci sit amet neque vehicula tempus. Duis tempus purus ipsum, ac finibus urna dignissim eget. Suspendisse luctus vehicula maximus. Maecenas lacinia libero sit amet mauris varius, sit amet euismod erat interdum.",
+            
             price
         })
 

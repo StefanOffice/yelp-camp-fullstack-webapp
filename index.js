@@ -22,7 +22,11 @@ const helmet = require('helmet');
 
 //for the database connection
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/yelp-camp');
+// const dbUrl = process.env.db_url;
+const dbUrl = process.env.db_url || 'mongodb://localhost:27017/yelp-camp';
+
+mongoose.connect(dbUrl);
+
 //inform us when there is an error and...
 mongoose.connection.on('error', console.error.bind(console, "there is an error in connection:"));
 //...once the connection is esablished
@@ -32,9 +36,24 @@ mongoose.connection.once('open', () => {
 
 //settings for the session
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
+const secret = process.env.secret || 'notaverygoodsecret!';
+//store session in the database instead of in memory
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    secret,
+    touchAfter: 60 * 60 * 24 //in seconds
+})
+
+store.on('error', function(e){
+    console.log("Session store error",  e);
+})
+
 const sessionConfig = {
+    store,
     name: 'notacookie',
-    secret: 'notaverygoodsecret!',
+    secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -167,7 +186,8 @@ app.use((err, req, res, next) => {
     res.render('error.ejs', { err });
 });
 
+const port = process.env.PORT || 3000;
 //register server to start listening on port 3000
-app.listen(3000, () => {
-    console.log('Server running on port 3000');
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
